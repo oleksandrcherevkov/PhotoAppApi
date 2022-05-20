@@ -111,6 +111,7 @@ namespace PhotoAppApi.Services.Users
                 return;
             }
 
+            var transaction = await _avatarsRepo.BeginTransactionAsync();
             if (!String.IsNullOrEmpty(user.Avatar))
             {
                 int currentAvatarId = await _avatarsRepo
@@ -122,7 +123,7 @@ namespace PhotoAppApi.Services.Users
 
                 if (_photoService.HasErrors)
                 {
-                    AddErrors(Errors);
+                    AddErrors(_photoService.Errors);
                     return;
                 }
             }
@@ -132,9 +133,11 @@ namespace PhotoAppApi.Services.Users
 
             if (_photoService.HasErrors)
             {
-                AddErrors(Errors);
+                AddErrors(_photoService.Errors);
                 return;
             }
+
+            await transaction.CommitAsync();
         }
 
         public async Task<User> FindAsync(string login)

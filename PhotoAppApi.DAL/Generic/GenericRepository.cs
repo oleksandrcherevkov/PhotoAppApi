@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using PhotoAppApi.EF;
 using System.Linq.Expressions;
 
@@ -68,6 +69,12 @@ namespace PhotoAppApi.DAL.Generic
         {
             _context.Entry(item).State = EntityState.Modified;
             await _context.SaveChangesAsync();
+        }
+
+
+        public async Task<IDbContextTransaction> BeginTransactionAsync()
+        {
+            return await _context.Database.BeginTransactionAsync();
         }
 
         private IQueryable<TEntity> Include(params Expression<Func<TEntity, object>>[] includeProperties)

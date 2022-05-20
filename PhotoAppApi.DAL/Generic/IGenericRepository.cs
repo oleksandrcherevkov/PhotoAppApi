@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore.Storage;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -19,5 +20,6 @@ namespace PhotoAppApi.DAL.Generic
         Task RemoveAsync(Expression<Func<TEntity, bool>> predicate);
         Task RemoveByIdAsync(params object?[]? keyValues);
         Task UpdateAsync(TEntity item);
+        Task<IDbContextTransaction> BeginTransactionAsync();
     }
 }

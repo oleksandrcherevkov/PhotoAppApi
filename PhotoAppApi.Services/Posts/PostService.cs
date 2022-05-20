@@ -55,6 +55,7 @@ namespace PhotoAppApi.Services.Posts
                 CreationTime = DateTime.UtcNow
             };
 
+            var transaction = await _postsRepo.BeginTransactionAsync();
             try
             {
                 await _postsRepo.CreateAsync(post);
@@ -71,10 +72,10 @@ namespace PhotoAppApi.Services.Posts
             if (_photoService.HasErrors)
             {
                 AddErrors(_photoService.Errors);
-                await DeleteAsync(post.Id, currentUserLogin);
                 return 0;
             }
 
+            await transaction.CommitAsync();
             return post.Id;
         }
 
