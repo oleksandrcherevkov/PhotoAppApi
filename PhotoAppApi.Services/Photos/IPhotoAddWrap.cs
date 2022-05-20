@@ -11,6 +11,6 @@ namespace PhotoAppApi.Services.Photos
     {
         public int MaxLength { get; }
         public IFormFile File { get; }
-        public TModel MapToModel(byte[] data);
+        public TModel MapToModel(byte[] data, byte[] compressedData);
     }
 }

@@ -23,13 +23,14 @@ namespace PhotoAppApi.Services.Photos.Avatars
             UserLogin = userLogin;
         }
 
-        public Avatar MapToModel(byte[] data)
+        public Avatar MapToModel(byte[] data, byte[] compressedData)
         {
             return new Avatar()
             {
                 Name = File.FileName,
                 UserLogin = UserLogin,
-                Data = data
+                Data = data,
+                CompressedData = compressedData
             };
         }
     }

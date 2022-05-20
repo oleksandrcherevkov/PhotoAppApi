@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using ImageProcessor;
+using ImageProcessor.Imaging.Formats;
+using ImageProcessor.Plugins.WebP.Imaging.Formats;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using PhotoAppApi.DAL.Generic;
 using PhotoAppApi.EF;
@@ -13,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace PhotoAppApi.Services.Photos
 {
-    public class PhotoService<T> : ServiceErrors where T : PhotoBase
+    public class PhotoService<T> : ServiceErrors where T : PhotoBase, new()
     {
         private readonly IGenericRepository<T> _repo;
 
@@ -33,30 +36,48 @@ namespace PhotoAppApi.Services.Photos
                 return;
             }
 
-            using (var memoryStream = new MemoryStream())
+            using (var originalPhotoStream = new MemoryStream())
             {
-                await addDto.File.CopyToAsync(memoryStream);
-
-                if (memoryStream.Length < addDto.MaxLength)
+                using (var compressedPhotoStream = new MemoryStream())
                 {
-                    T photo = addDto.MapToModel(memoryStream.ToArray());
+                    using (var photoStream = File.Create(Path.GetFullPath("Photo.webp")))
+                    {
+                        using (ImageFactory imageFactory = new ImageFactory(preserveExifData: true))
+                        {
+                            imageFactory.Load(addDto.File.OpenReadStream())
+                                        .Format(new WebPFormat())
+                                        .Quality(5)
+                                        .Save(compressedPhotoStream);
+                        }
+                    }
+                    addDto.File.CopyTo(originalPhotoStream);
+                    if (originalPhotoStream.Length < addDto.MaxLength)
+                    {
+                        T photo = addDto.MapToModel(originalPhotoStream.ToArray(), compressedPhotoStream.ToArray());
 
-                    try
-                    {
-                        await _repo.CreateAsync(photo);
+                        try
+                        {
+                            await _repo.CreateAsync(photo);
+                        }
+                        catch (Exception)
+                        {
+                            AddError($"Error occured during adding photo [{addDto.File.FileName}] to post.", nameof(addDto.File));
+                        }
+
                     }
-                    catch (Exception)
-                    {
-                        AddError($"Error occured during adding photo [{addDto.File.FileName}] to post.", nameof(addDto.File));
-                    }
-                    
+                    else
+                        AddError($"The file [{addDto.File.FileName}] is too large.", nameof(addDto.File));
                 }
-                else
-                    AddError($"The file [{addDto.File.FileName}] is too large.", nameof(addDto.File));
+                
             }
         }
 
-        public async Task<T> ReadAsync(int id)
+        private void Save(MemoryStream compressedPhotoStream)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<T> ReadAsync(int id, bool compressed = false)
         {
             //T photo = await _dbContext.Set<T>
             //        .AsNoTracking()
@@ -74,7 +95,16 @@ namespace PhotoAppApi.Services.Photos
             //        throw new ArgumentOutOfRangeException(nameof(readOptions.PhotoType));
             //}
 
-            T photo = await _repo.FindByIdAsync(id);
+            T photo = await _repo
+                .Read(p => p.Id == id)
+                .Select(p => new T()
+                {
+                    Id = p.Id,
+                    Data = compressed ? null : p.Data,
+                    CompressedData = compressed ? p.CompressedData : null,
+                    Name = p.Name
+                })
+                .FirstOrDefaultAsync();
 
             //T photo = await photoQuery
             //    .AsNoTracking()

@@ -23,13 +23,14 @@ namespace PhotoAppApi.Services.Photos.PostPhotos
             PostId = postId;
         }
 
-        public PostPhoto MapToModel(byte[] data)
+        public PostPhoto MapToModel(byte[] data, byte[] compressedData)
         {
             return new PostPhoto()
             {
                 PostId = PostId,
                 Name = File.FileName,
-                Data = data
+                Data = data,
+                CompressedData = compressedData
             };
         }
     }

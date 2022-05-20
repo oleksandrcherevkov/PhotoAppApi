@@ -18,55 +18,46 @@ namespace PhotoAppApi.Controllers
     public class PhotoController : ControllerBase
     {
         [AllowAnonymous]
-        [HttpGet("post/{id}/{name}")]
-        public async Task<IActionResult> DownloadPostPhoto([Range(0, int.MaxValue)] [FromRoute] int id, [FromServices] PhotoService<PostPhoto> photoService)
+        [HttpGet("post/{id}/{name}/{state?}")]
+        public async Task<IActionResult> DownloadPostPhoto([Range(0, int.MaxValue)] [FromRoute] int id, [FromServices] PhotoService<PostPhoto> photoService, [FromRoute] string state = null)
         {
-            if(id > 0)
+            bool compressed = !string.IsNullOrEmpty(state);
+
+            var photo = await photoService.ReadAsync(id, compressed);
+
+            if (photo != null)
             {
-                var photo = await photoService.ReadAsync(id);
-
-                if (photo != null)
-                {
-                    var ext = Path.GetExtension(photo.Name).ToLowerInvariant().Replace(".", "");
-
-                    return File(photo.Data, $"image/{ext}", photo.Name);
-                }
+                var ext = Path.GetExtension(photo.Name).ToLowerInvariant().Replace(".", "");
+                if (compressed)
+                    return File(photo.CompressedData, $"image/{ext}", photo.Name);
                 else
-                {
-                    ModelState.AddServiceErrors(photoService);
-                    return BadRequest(ModelState);
-                }
+                    return File(photo.Data, $"image/{ext}", photo.Name);
             }
             else
             {
-                ModelState.AddModelError(nameof(id) ,"Invalid photo id.");
+                ModelState.AddServiceErrors(photoService);
                 return BadRequest(ModelState);
             }
         }
 
         [AllowAnonymous]
-        [HttpGet("avatar/{id}/{name}")]
-        public async Task<IActionResult> DownloadAvatar([Range(0, int.MaxValue)] [FromRoute] int id, [FromServices] PhotoService<Avatar> avatarService)
+        [HttpGet("avatar/{id}/{name}/{state?}")]
+        public async Task<IActionResult> DownloadAvatar([Range(0, int.MaxValue)] [FromRoute] int id,  [FromServices] PhotoService<Avatar> avatarService, [FromRoute] string state = null)
         {
-            if (id > 0)
+            bool compressed = !string.IsNullOrEmpty(state);
+            var photo = await avatarService.ReadAsync(id, compressed);
+
+            if (photo != null)
             {
-                var photo = await avatarService.ReadAsync(id);
-
-                if (photo != null)
-                {
-                    var ext = Path.GetExtension(photo.Name).ToLowerInvariant().Replace(".", "");
-
-                    return File(photo.Data, $"image/{ext}", photo.Name);
-                }
+                var ext = Path.GetExtension(photo.Name).ToLowerInvariant().Replace(".", "");
+                if(compressed)
+                    return File(photo.CompressedData, $"image/{ext}", photo.Name);
                 else
-                {
-                    ModelState.AddServiceErrors(avatarService);
-                    return BadRequest(ModelState);
-                }
+                    return File(photo.Data, $"image/{ext}", photo.Name);
             }
             else
             {
-                ModelState.AddModelError(nameof(id), "Invalid photo id.");
+                ModelState.AddServiceErrors(avatarService);
                 return BadRequest(ModelState);
             }
         }

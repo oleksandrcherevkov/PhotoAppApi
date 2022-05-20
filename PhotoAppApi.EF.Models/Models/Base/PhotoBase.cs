@@ -15,5 +15,6 @@ namespace PhotoAppApi.EF.Models.Base
         public string Name { get; set; }
         [Required]
         public byte[] Data { get; set; }
+        public byte[] CompressedData { get; set; }
     }
 }
