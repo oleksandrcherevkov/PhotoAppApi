@@ -16,7 +16,7 @@ The complete application is designed to be a social network for sharing photos a
 ## 🔗 Deployed version
 [**API**](https://photoa.azurewebsites.net)
 
-~~[**Web App**]()~~ *A frontend part hasn't been deployed yet*
+[**Web App**](https://grwadl.github.io/)
 ##  Creators
 
 [Oleksandr Cherevkov](https://github.com/oleksandrcherevkov)
