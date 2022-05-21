@@ -40,7 +40,7 @@ namespace PhotoAppApi.Controllers
 
             List<UserScoreboardListDto> users = await _usersRepo
                 .Read(u => u.Posts.Where(p => p.CreationTime > now.Subtract(searchingTime)).Any())
-                .SelectScoreboardDto(hostName, now, searchingTime)
+                .SelectScoreboardDto(hostName, now, searchingTime, compressedAvatar: true)
                 .OrderByDescending(dto => dto.LikesInPeriod)
                 .Take(4)
                 .ToListAsync();
@@ -49,7 +49,7 @@ namespace PhotoAppApi.Controllers
             List<PostListDto> posts = await _postsRepo
                 .Read(p => p.CreationTime > now.Subtract(searchingTime))
                 .OrderByDescending(p => p.LikesCount + p.Comments.Count())
-                .SelectListDto(User.Identity.Name, hostName)
+                .SelectListDto(User.Identity.Name, hostName, compressedPhoto: true)
                 .Take(3)
                 .ToListAsync();
 

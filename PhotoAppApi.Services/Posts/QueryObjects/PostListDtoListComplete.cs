@@ -12,12 +12,12 @@ namespace PhotoAppApi.Services.Posts.QueryObjects
 {
     public static class PostListDtoListComplete
     {
-        public static async Task<PostsPageDto> ReadPostsPagedAsync(this IQueryable<Post> query, PostsListOptions listOptions, string login, string host)
+        public static async Task<PostsPageDto> ReadPostsPagedAsync(this IQueryable<Post> query, PostsListOptions listOptions, string login, string host, bool compressedPhoto = false)
         {
             var newQuery = query
                           .AsNoTracking()
                           .OrderByDescending(p => p.CreationTime)
-                          .SelectListDto(login, host);
+                          .SelectListDto(login, host, compressedPhoto);
 
             listOptions.CheckPaging(query);
 

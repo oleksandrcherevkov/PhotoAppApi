@@ -117,7 +117,7 @@ namespace PhotoAppApi.Services.Posts
                 postsQuery = postsQuery.Where(p => p.CreatorLogin == login);
 
             PostsPageDto page = await postsQuery
-                .ReadPostsPagedAsync(listOptions, currentUserLogin, _hostName);
+                .ReadPostsPagedAsync(listOptions, currentUserLogin, _hostName, compressedPhoto: true);
 
             return page;
         }

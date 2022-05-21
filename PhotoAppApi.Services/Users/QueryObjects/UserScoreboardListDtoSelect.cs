@@ -10,13 +10,13 @@ namespace PhotoAppApi.Services.Users.QueryObjects
 {
     public static class UserScoreboardListDtoSelect
     {
-        public static IQueryable<UserScoreboardListDto> SelectScoreboardDto(this IQueryable<User> query, string host, DateTime now, TimeSpan searchingTime)
+        public static IQueryable<UserScoreboardListDto> SelectScoreboardDto(this IQueryable<User> query, string host, DateTime now, TimeSpan searchingTime, bool compressedAvatar = false)
         {
             return query.Select(u => new UserScoreboardListDto()
             {
                 Login = u.Login,
                 Role = u.Role,
-                Avatar = u.Avatar == null ? "" : $"https://{host}/api/photo/avatar/{u.Avatar.Id}/{u.Avatar.Name}",
+                Avatar = u.Avatar == null ? "" : ($"https://{host}/api/photo/avatar/{u.Avatar.Id}/{u.Avatar.Name}" + (compressedAvatar ? "/compressed" : "")),
                 PostsTotal = u.Posts.Count(),
                 LikesInPeriod = u.Posts.Select(p => p.LikesCount).Sum(),
                 LikesTotal = u.Posts.Where(p => p.CreationTime > now.Subtract(searchingTime))

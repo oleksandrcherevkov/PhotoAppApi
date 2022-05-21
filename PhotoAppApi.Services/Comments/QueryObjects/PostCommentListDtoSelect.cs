@@ -15,7 +15,7 @@ namespace PhotoAppApi.Services.Comments.QueryObjects
             return query.Select(c => new PostCommentListDto()
             {
                 Id = c.Id,
-                CreatorAvatar = c.Creator.Avatar == null ? "" : $"https://{host}/api/photo/avatar/{c.Creator.Avatar.Id}/{c.Creator.Avatar.Name}",
+                CreatorAvatar = c.Creator.Avatar == null ? "" : $"https://{host}/api/photo/avatar/{c.Creator.Avatar.Id}/{c.Creator.Avatar.Name}/compressed",
                 CreatorLogin = c.CreatorLogin,
                 Text = c.Text,
                 CreationTime = c.CreationTime
