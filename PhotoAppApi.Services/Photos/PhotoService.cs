@@ -38,21 +38,22 @@ namespace PhotoAppApi.Services.Photos
 
             using (var originalPhotoStream = new MemoryStream())
             {
+                addDto.File.CopyTo(originalPhotoStream);
                 using (var compressedPhotoStream = new MemoryStream())
-                {
-                    using (var photoStream = File.Create(Path.GetFullPath("Photo.webp")))
-                    {
-                        using (ImageFactory imageFactory = new ImageFactory(preserveExifData: true))
-                        {
-                            imageFactory.Load(addDto.File.OpenReadStream())
-                                        .Format(new WebPFormat())
-                                        .Quality(5)
-                                        .Save(compressedPhotoStream);
-                        }
-                    }
-                    addDto.File.CopyTo(originalPhotoStream);
+                { 
                     if (originalPhotoStream.Length < addDto.MaxLength)
                     {
+                        using(Stream readStream = addDto.File.OpenReadStream())
+                        {
+                            using (ImageFactory imageFactory = new ImageFactory())
+                            {
+                                imageFactory.Load(readStream)
+                                            .Format(new WebPFormat())
+                                            .Quality(5)
+                                            .Save(compressedPhotoStream);
+                            }
+                        }
+
                         T photo = addDto.MapToModel(originalPhotoStream.ToArray(), compressedPhotoStream.ToArray());
 
                         try
