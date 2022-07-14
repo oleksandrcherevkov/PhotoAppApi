@@ -14,7 +14,7 @@ The complete application is designed to be a social network for sharing photos a
 * SQL server and database
 
 ## 🔗 Deployed version
-[**API**](https://photoa.azurewebsites.net)
+~~[**API**](https://photoa.azurewebsites.net)~~
 
 [**Web App**](https://grwadl.github.io/)
 ##  Creators
